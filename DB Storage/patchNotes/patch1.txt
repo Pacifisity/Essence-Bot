@@ -1,0 +1,14 @@
+**BETA - Week 1**
+* Added the $register command and various statistics
+* Data Transferred from Old Game
+    - All pre-patch characters don't get the opportunity to register
+    - Energy divided by large amounts
+    - Start at level 2 if you ascended
+    - All pre-patch character's birthdays are "The Primordial Era"
+* Added a Character card accesible with the $character command
+* Added the $explore command and 22 exploration scenarios
+* Added the $recover command to heal all of your hp once an hour.
+* Added a death function that goes off if your hp drops below zero, you will lose 20% of your xp requirement at that time.
+* Added the $advance command you can use when you have enough xp
+* Added a $ranking command to promote competitivity
+* Added a $stats command that will show various statistics about your character
