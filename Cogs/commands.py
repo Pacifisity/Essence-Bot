@@ -3,7 +3,7 @@ import sqlite3
 from discord import app_commands
 from discord.ext import commands
 from datetime import datetime
-import time
+
 mod = 741152373921022092
 
 class Essence(commands.Cog):

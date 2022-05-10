@@ -37,7 +37,7 @@ def hp_suppresion(hp_lost, user_id):
         character_dot = character_dot[0]
         if character_dot == None:
             character_dot = 0
-        if character_dot == 0:
+        if character_dot > 0:
             sql = "UPDATE incremental SET character_dot = ? WHERE user_id = ?"
             val = (character_dot - 1, user_id)
             cursor.execute(sql, val)
@@ -426,6 +426,7 @@ class Incremental(commands.Cog): #characterMaxHp
             character_world_level = cursor.fetchone(); character_world_level = character_world_level[0]
             cursor.execute(f'SELECT stat_world_keys FROM incremental WHERE user_id = ?', (user_id,))
             stat_world_keys = cursor.fetchone(); stat_world_keys = stat_world_keys[0]
+
             if stat_world_keys == None:
                 stat_world_keys = 0
             cursor.execute(f'SELECT character_dot FROM incremental WHERE user_id = ?', (user_id,))
@@ -454,7 +455,7 @@ class Incremental(commands.Cog): #characterMaxHp
                     if character_level > 9:
                         embed.add_field(name="-", value=f"{character_name} hears a deep voice coming from behind them, 'You no longer belong here, leave'. After turning around {character_name} sees nothing...", inline=False)
                         if stat_world_keys == 0:
-                            embed.add_field(name="-", value=f"{character_name} understands that there's somewhere that they need to go, they can feel pressure holding them back", inline=False)
+                            embed.add_field(name="-", value=f"{character_name} understands that there's somewhere that they need to go, they can feel pressure holding them back\n+1 Englightenment", inline=False)
                             world_lock(1, stat_world_keys, user_id)
 
             if exploration_number == 2:
@@ -559,7 +560,7 @@ class Incremental(commands.Cog): #characterMaxHp
                 if character_level > 9:
                     embed.add_field(name="-", value=f"A wrinkled old man passed by {character_name} while preeching about the frustrations of mortals, {character_name} feels enlightened\n+{xp_gained}xp", inline=False)
                     if stat_world_keys == 1:
-                            embed.add_field(name="-", value=f"{character_name} knows that they've broken the shackles of mortality and they need to go to new heights.", inline=False)
+                            embed.add_field(name="-", value=f"{character_name} knows that they've broken the shackles of mortality and they need to go to new heights.\n+1 Englightenment", inline=False)
                             world_lock(2, stat_world_keys, user_id)
                 else:
                     embed.add_field(name="-", value=f"A wrinkled old man passed by {character_name} while muttering something incomprehensible, {character_name} feels enlightened\n+{xp_gained}xp", inline=False)
@@ -586,10 +587,11 @@ class Incremental(commands.Cog): #characterMaxHp
 
             # third world key --------------------------------------------------------------------------------------------------------------------------------------------------------------------
             if exploration_number == 15:
-                hp_lost = hp_suppresion(10, user_id)
+                if not character_level > 9:
+                    hp_lost = hp_suppresion(10, user_id)
                 embed.add_field(name="-", value=f"A snow dragon warrior flew over {character_name} during their travels, it's a little cold\n-{hp_lost}%hp", inline=False)
                 if stat_world_keys == 2:
-                            embed.add_field(name="-", value=f"{character_name} follows the dragon warrior, finds that they've travelled through a portal. I wonder where this leads.", inline=False)
+                            embed.add_field(name="-", value=f"{character_name} follows the dragon warrior, finds that they've travelled through a portal. I wonder where this leads.\n+1 Englightenment", inline=False)
                             world_lock(3, stat_world_keys, user_id)
 
             if exploration_number == 16:

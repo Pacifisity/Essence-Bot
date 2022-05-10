@@ -13,7 +13,7 @@ class Errors(commands.Cog):
                 await ctx.send(f"That command doesn't exist")
             else:
                 channel = self.bot.get_channel(735131468145360917)
-                embed = discord.Embed(description=f"That command doesn't exist.", colour=0xFF0000)
+                embed = discord.Embed(description=f"That command doesn't exist.\n {ctx.message.content}", colour=0xFF0000)
                 embed.set_author(name=(f"{ctx.author.nick}'s Error"), icon_url=ctx.author.display_avatar)
                 if not ctx.channel.id == 735131468145360917:
                     await ctx.message.delete()
