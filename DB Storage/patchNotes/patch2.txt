@@ -1,6 +1,7 @@
 **BETA - Week 2**
 * Changed the format for scenarios
 * Added more scenarios
+* Added the framework for world 2
 * You stay at your previous hp on death, enforcing the idea of the character not remembering their death
 * Experience and health gain are suppressed if you're above the world's maximum level
 * Fixed bugs
