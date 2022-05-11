@@ -26,7 +26,7 @@ def number_format(number):
 def hp_suppresion(hp_lost, user_id):
     with sqlite3.connect('DB Storage/essence.db') as db:
         cursor = db.cursor()
-        cursor.execute(f'SELECT character_level, character_world_level ROM incremental WHERE user_id = ?', (user_id,))
+        cursor.execute(f'SELECT character_level, character_world_level FROM incremental WHERE user_id = ?', (user_id,))
         character_information = cursor.fetchone()
         character_level = character_information[0]
         character_world_level = character_information[1]
@@ -48,12 +48,10 @@ def hp_suppresion(hp_lost, user_id):
 def xp_suppresion(xp_gained, user_id):
     with sqlite3.connect('DB Storage/essence.db') as db:
         cursor = db.cursor()
-        cursor.execute(f'SELECT character_level FROM incremental WHERE user_id = ?', (user_id,))
-        character_level = cursor.fetchone()
-        character_level = character_level[0]
-        cursor.execute(f'SELECT character_world_level FROM incremental WHERE user_id = ?', (user_id,))
-        character_world_level = cursor.fetchone()
-        character_world_level = character_world_level[0]
+        cursor.execute(f'SELECT character_level, character_world_level ROM incremental WHERE user_id = ?', (user_id,))
+        character_information = cursor.fetchone()
+        character_level = character_information[0]
+        character_world_level = character_information[1]
 
     # xp gain level suppresion
     max_world_level = 10 * character_world_level
@@ -71,24 +69,21 @@ def xp_suppresion(xp_gained, user_id):
 # Updates the character's information ------------------------------------------------------------------------------------------------------------------------------------------------------------
 def character_update(hp_lost, xp_gained, energy_stones_gained, user_id):
     with sqlite3.connect('DB Storage/essence.db') as db:
-        # character stats
         cursor = db.cursor()
-        cursor.execute(f'SELECT stat_explorations FROM incremental WHERE user_id = ?', (user_id,))
-        stat_explorations = cursor.fetchone(); stat_explorations = stat_explorations[0]
-        cursor.execute(f'SELECT stat_damage_taken FROM incremental WHERE user_id = ?', (user_id,))
-        stat_damage_taken = cursor.fetchone(); stat_damage_taken = stat_damage_taken[0]
-        cursor.execute(f'SELECT stat_xp_gained FROM incremental WHERE user_id = ?', (user_id,))
-        stat_xp_gained = cursor.fetchone(); stat_xp_gained = stat_xp_gained[0]
-        cursor.execute(f'SELECT stat_energy_stones_gained FROM incremental WHERE user_id = ?', (user_id,))
-        stat_energy_stones_gained = cursor.fetchone(); stat_energy_stones_gained = stat_energy_stones_gained[0]
+        # character stats
+        cursor.execute(f'SELECT stat_explorations, stat_damage_taken, stat_xp_gained, stat_energy_stones_gained FROM incremental WHERE user_id = ?', (user_id,))
+        character_stats = cursor.fetchone()
+        stat_explorations = character_stats[0]
+        stat_damage_taken = character_stats[1]
+        stat_xp_gained = character_stats[2]
+        stat_energy_stones_gained = character_stats[3]
 
         # character information
-        cursor.execute(f'SELECT character_xp FROM incremental WHERE user_id = ?', (user_id,))
-        character_xp = cursor.fetchone(); character_xp = character_xp[0]
-        cursor.execute(f'SELECT character_energy_stones FROM incremental WHERE user_id = ?', (user_id,))
-        character_energy_stones = cursor.fetchone(); character_energy_stones = character_energy_stones[0]
-        cursor.execute(f'SELECT character_hp FROM incremental WHERE user_id = ?', (user_id,))
-        character_hp = cursor.fetchone(); character_hp = character_hp[0]
+        cursor.execute(f'SELECT character_xp, character_energy_stones, character_hp FROM incremental WHERE user_id = ?', (user_id,))
+        character_information = cursor.fetchone()
+        character_xp = character_information[0]
+        character_energy_stones = character_information[1]
+        character_hp = character_information[2]
 
         # update's character information
         sql = "UPDATE incremental SET character_xp = ?, character_hp = ?, character_energy_stones = ? WHERE user_id = ?"
@@ -106,18 +101,11 @@ def character_update(hp_lost, xp_gained, energy_stones_gained, user_id):
 def death_check(hp_lost, user_id):
     with sqlite3.connect('DB Storage/essence.db') as db:
         cursor = db.cursor()
-        cursor.execute(f'SELECT character_name FROM incremental WHERE user_id = ?', (user_id,))
-        character_name = cursor.fetchone()
-        character_name = character_name[0]
-        cursor.execute(f'SELECT character_hp FROM incremental WHERE user_id = ?', (user_id,))
-        character_hp = cursor.fetchone()
-        character_hp = character_hp[0]
-        cursor.execute(f'SELECT character_xp FROM incremental WHERE user_id = ?', (user_id,))
-        character_xp = cursor.fetchone()
-        character_xp = character_xp[0]
-        cursor.execute(f'SELECT character_xp_required FROM incremental WHERE user_id = ?', (user_id,))
-        character_xp_required = cursor.fetchone()
-        character_xp_required = character_xp_required[0]
+        cursor.execute(f'SELECT character_hp, character_xp, character_xp_required FROM incremental WHERE user_id = ?', (user_id,))
+        character_information = cursor.fetchone()
+        character_hp = character_information[0]
+        character_xp = character_information[1]
+        character_xp_required = character_information[2]
 
     if character_hp <= 0:
         if round(character_xp - character_xp_required * 0.2) <= 0:
@@ -203,11 +191,11 @@ class Incremental(commands.Cog): #characterMaxHp
             await ctx.send(embed=embed); await channel.send(embed=embed)
 
     @commands.command()
-    async def register(self, ctx: commands.Context, *, arg: str = None):
+    async def register(self, ctx: commands.Context, *, character_name: str = None):
         channel = self.bot.get_channel(969009985512157194)
         user_id = ctx.author.id
         timestamp = round(datetime.now().timestamp())
-        if arg == None:
+        if character_name == None:
             with sqlite3.connect('DB Storage/essence.db') as db:
                 cursor = db.cursor()
                 cursor.execute(f'SELECT character_name FROM incremental WHERE user_id = ?', (user_id,))
@@ -225,10 +213,10 @@ class Incremental(commands.Cog): #characterMaxHp
                 character_name = cursor.fetchone()
             if character_name == None:
                 sql = "INSERT INTO incremental(user_id, character_name, character_level, character_energy_stones, character_world_level, character_xp, character_xp_required, character_hp, stat_birthday, stat_explorations, stat_damage_taken, stat_xp_gained, stat_energy_stones_gained, stat_world_boss_damage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-                val = (user_id, arg, 1, 0, 1, 0, 100, 100, timestamp, 0, 0, 0, 0, 0)
+                val = (user_id, character_name, 1, 0, 1, 0, 100, 100, timestamp, 0, 0, 0, 0, 0)
                 cursor.execute(sql, val)
                 db.commit()
-                embed = discord.Embed(description=f"Welcome to the game of Essence, your character {arg} has been created.", colour=0x800080)
+                embed = discord.Embed(description=f"Welcome to the game of Essence, your character {character_name} has been created.", colour=0x800080)
                 await ctx.send(embed=embed); await channel.send(embed=embed)
             else:
                 embed = discord.Embed(description=f"You've already started your journey, {character_name[0]}", colour=0x800080)
@@ -398,27 +386,17 @@ class Incremental(commands.Cog): #characterMaxHp
         exploration_number = random.randint(1,25)
         with sqlite3.connect('DB Storage/essence.db') as db:
             cursor = db.cursor()
-            cursor.execute(f'SELECT character_name FROM incremental WHERE user_id = ?', (user_id,))
-            character_name = cursor.fetchone(); character_name = character_name[0]
-            cursor.execute(f'SELECT character_energy_stones FROM incremental WHERE user_id = ?', (user_id,))
-            character_energy_stones = cursor.fetchone(); character_energy_stones = character_energy_stones[0]
-            cursor.execute(f'SELECT character_level FROM incremental WHERE user_id = ?', (user_id,))
-            character_level = cursor.fetchone(); character_level = character_level[0]
-            cursor.execute(f'SELECT character_xp FROM incremental WHERE user_id = ?', (user_id,))
-            character_xp = cursor.fetchone(); character_xp = character_xp[0]
-            cursor.execute(f'SELECT character_xp_required FROM incremental WHERE user_id = ?', (user_id,))
-            character_xp_required = cursor.fetchone(); character_xp_required = character_xp_required[0]
-            cursor.execute(f'SELECT character_hp FROM incremental WHERE user_id = ?', (user_id,))
-            character_hp = cursor.fetchone(); character_hp = character_hp[0]
-            cursor.execute(f'SELECT character_world_level FROM incremental WHERE user_id = ?', (user_id,))
-            character_world_level = cursor.fetchone(); character_world_level = character_world_level[0]
-            cursor.execute(f'SELECT stat_world_keys FROM incremental WHERE user_id = ?', (user_id,))
-            stat_world_keys = cursor.fetchone(); stat_world_keys = stat_world_keys[0]
+            cursor.execute(f'SELECT character_name, character_level, character_world_level, stat_world_keys FROM incremental WHERE user_id = ?', (user_id,))
+            character_information = cursor.fetchone()
+            character_name = character_information[0]
+            character_level = character_information[1]
+            character_world_level = character_information[2]
+            stat_world_keys = character_information[3]
 
             if stat_world_keys == None:
                 stat_world_keys = 0
             hp_lost = 0; xp_gained = 0; energy_stones_gained = 0
-
+        
         embed = discord.Embed(description=f"**{character_name} went on an adventure to explore the world of Essence**", colour=0x800080)
         if character_world_level == 1:
 
@@ -520,17 +498,17 @@ class Incremental(commands.Cog): #characterMaxHp
                 final_odds = random.randint(7,10)
 
                 if character_level >= final_odds:
-                                    xp_gained = xp_suppresion(100, user_id)
-                                    embed.add_field(name="-", value=f"{character_name} was the **Champion**\n+{xp_gained}xp -{hp_lost}%hp", inline=False)
+                    xp_gained = xp_suppresion(100, user_id)
+                    embed.add_field(name="-", value=f"{character_name} was the **Champion**\n+{xp_gained}xp -{hp_lost}%hp", inline=False)
                 elif character_level >= semi_final_odds:
-                                xp_gained = xp_suppresion(80, user_id)
-                                embed.add_field(name="-", value=f"{character_name} won the semi finals\n+{xp_gained}xp -{hp_lost}%hp", inline=False)
+                    xp_gained = xp_suppresion(80, user_id)
+                    embed.add_field(name="-", value=f"{character_name} won the semi finals\n+{xp_gained}xp -{hp_lost}%hp", inline=False)
                 elif character_level >= quarter_final_odds:
-                            xp_gained = xp_suppresion(60, user_id)
-                            embed.add_field(name="-", value=f"{character_name} won the quarter finals\n+{xp_gained}xp -{hp_lost}%hp", inline=False)
+                    xp_gained = xp_suppresion(60, user_id)
+                    embed.add_field(name="-", value=f"{character_name} won the quarter finals\n+{xp_gained}xp -{hp_lost}%hp", inline=False)
                 elif character_level >= second_round_odds:
-                        xp_gained = xp_suppresion(40, user_id)
-                        embed.add_field(name="-", value=f"{character_name} won the second round\n+{xp_gained}xp -{hp_lost}%hp", inline=False)
+                    xp_gained = xp_suppresion(40, user_id)
+                    embed.add_field(name="-", value=f"{character_name} won the second round\n+{xp_gained}xp -{hp_lost}%hp", inline=False)
                 elif character_level >= first_round_odds:
                     xp_gained = xp_suppresion(20, user_id)
                     embed.add_field(name="-", value=f"{character_name} won the first round\n+{xp_gained}xp -{hp_lost}%hp", inline=False)
@@ -647,7 +625,7 @@ class Incremental(commands.Cog): #characterMaxHp
                 else:
                     hp_lost = hp_suppresion(10, user_id)
                     embed.add_field(name="-", value=f"The person attacks you, you were beaten up.\n-{hp_lost}%hp", inline=False)
-                    
+            
         elif character_world_level == 2:
             if exploration_number == 1:
                 pass
@@ -671,24 +649,15 @@ class Incremental(commands.Cog): #characterMaxHp
         channel = self.bot.get_channel(969009985512157194)
         with sqlite3.connect('DB Storage/essence.db') as db:
             cursor = db.cursor()
-            cursor.execute(f'SELECT character_name FROM incremental WHERE user_id = ?', (user_id,))
-            character_name = cursor.fetchone()
-            character_name = character_name[0]
-            cursor.execute(f'SELECT stat_explorations FROM incremental WHERE user_id = ?', (user_id,))
-            stat_explorations = cursor.fetchone()
-            stat_explorations = stat_explorations[0]
-            cursor.execute(f'SELECT stat_damage_taken FROM incremental WHERE user_id = ?', (user_id,))
-            stat_damage_taken = cursor.fetchone()
-            stat_damage_taken = stat_damage_taken[0]
-            cursor.execute(f'SELECT stat_xp_gained FROM incremental WHERE user_id = ?', (user_id,))
-            stat_xp_gained = cursor.fetchone()
-            stat_xp_gained = stat_xp_gained[0]
-            cursor.execute(f'SELECT stat_energy_stones_gained FROM incremental WHERE user_id = ?', (user_id,))
-            stat_energy_stones_gained = cursor.fetchone()
-            stat_energy_stones_gained = stat_energy_stones_gained[0]
-            cursor.execute(f'SELECT stat_birthday FROM incremental WHERE user_id = ?', (user_id,))
-            stat_birthday = cursor.fetchone()
-            stat_birthday = stat_birthday[0]
+            cursor.execute(f'SELECT character_name, stat_explorations, stat_damage_taken, stat_xp_gained, stat_energy_stones_gained, stat_birthday FROM incremental WHERE user_id = ?', (user_id,))
+            character_information = cursor.fetchone()
+            character_name = character_information[0]
+            stat_explorations = character_information[1]
+            stat_damage_taken = character_information[2]
+            stat_xp_gained = character_information[3]
+            stat_energy_stones_gained = character_information[4]
+            stat_birthday = character_information[5]
+            # Old
             if stat_birthday == 1651019868:
                 stat_birthday = "The Primordial Era"
             else:
