@@ -1,5 +1,6 @@
 **BETA - Week 2**
 * Changed the format for scenarios
+* Removed DOT
 * Added more scenarios
 * Added the framework for world 2
 * You stay at your previous hp on death, enforcing the idea of the character not remembering their death

@@ -26,27 +26,15 @@ def number_format(number):
 def hp_suppresion(hp_lost, user_id):
     with sqlite3.connect('DB Storage/essence.db') as db:
         cursor = db.cursor()
-        cursor.execute(f'SELECT character_level FROM incremental WHERE user_id = ?', (user_id,))
-        character_level = cursor.fetchone()
-        character_level = character_level[0]
-        cursor.execute(f'SELECT character_world_level FROM incremental WHERE user_id = ?', (user_id,))
-        character_world_level = cursor.fetchone()
-        character_world_level = character_world_level[0]
-        cursor.execute(f'SELECT character_dot FROM incremental WHERE user_id = ?', (user_id,))
-        character_dot = cursor.fetchone()
-        character_dot = character_dot[0]
-        if character_dot == None:
-            character_dot = 0
-        if character_dot > 0:
-            sql = "UPDATE incremental SET character_dot = ? WHERE user_id = ?"
-            val = (character_dot - 1, user_id)
-            cursor.execute(sql, val)
-            db.commit()
+        cursor.execute(f'SELECT character_level, character_world_level ROM incremental WHERE user_id = ?', (user_id,))
+        character_information = cursor.fetchone()
+        character_level = character_information[0]
+        character_world_level = character_information[1]
 
     # hp lost level suppresion
     max_world_level = 10 * character_world_level
     if character_level > max_world_level:
-        hp_lost = (hp_lost / (1 + ((character_level - max_world_level) / 10))) + character_dot
+        hp_lost = (hp_lost / (1 + ((character_level - max_world_level) / 10)))
         if character_level > max_world_level + 10:
             hp_lost = hp_lost / 3 * (1 + ((character_level - max_world_level) / 10))
     
@@ -429,10 +417,6 @@ class Incremental(commands.Cog): #characterMaxHp
 
             if stat_world_keys == None:
                 stat_world_keys = 0
-            cursor.execute(f'SELECT character_dot FROM incremental WHERE user_id = ?', (user_id,))
-            character_dot = cursor.fetchone(); character_dot = character_dot[0]
-            if character_dot == None:
-                character_dot = 0
             hp_lost = 0; xp_gained = 0; energy_stones_gained = 0
 
         embed = discord.Embed(description=f"**{character_name} went on an adventure to explore the world of Essence**", colour=0x800080)
@@ -643,8 +627,6 @@ class Incremental(commands.Cog): #characterMaxHp
                     embed.add_field(name="-", value=f"The wall shatters, huh...", inline=False)
 
             if exploration_number == 23:
-                character_dot_added = hp_suppresion(5, user_id)
-                character_dot = character_dot + character_dot_added
                 hp_lost = hp_suppresion(5, user_id)
                 energy_stones_gained = 10
                 embed.add_field(name="-", value=f"A person appears infront of {character_name}, slaps {character_name} and disappears... they wonder why that happened until they find that they feel sick.\n-{hp_lost}%hp +{energy_stones_gained} energy stones", inline=False)
@@ -671,9 +653,6 @@ class Incremental(commands.Cog): #characterMaxHp
                 pass
         
         character_update(hp_lost, xp_gained, energy_stones_gained, user_id)
-
-        if character_dot > 0:
-            embed.add_field(name=f"Character Sickness", value=f"{character_name} is sick and took {character_dot} more damage than normal.", inline=False)
 
         dead = death_check(hp_lost, user_id)
         if dead:
