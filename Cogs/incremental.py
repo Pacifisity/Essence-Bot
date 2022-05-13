@@ -30,6 +30,7 @@ def hp_suppresion(hp_lost, user_id):
         character_information = cursor.fetchone()
         character_level = character_information[0]
         character_world_level = character_information[1]
+    
 
     # hp lost level suppresion
     max_world_level = 10 * character_world_level
@@ -37,6 +38,7 @@ def hp_suppresion(hp_lost, user_id):
         hp_lost = (hp_lost / (1 + ((character_level - max_world_level) / 10)))
         if character_level > max_world_level + 10:
             hp_lost = hp_lost / 3 * (1 + ((character_level - max_world_level) / 10))
+    
     
     # hp lost randomization
     hp_randomizer = random.randint(1,3)
@@ -48,7 +50,7 @@ def hp_suppresion(hp_lost, user_id):
 def xp_suppresion(xp_gained, user_id):
     with sqlite3.connect('DB Storage/essence.db') as db:
         cursor = db.cursor()
-        cursor.execute(f'SELECT character_level, character_world_level ROM incremental WHERE user_id = ?', (user_id,))
+        cursor.execute(f'SELECT character_level, character_world_level FROM incremental WHERE user_id = ?', (user_id,))
         character_information = cursor.fetchone()
         character_level = character_information[0]
         character_world_level = character_information[1]
@@ -59,7 +61,7 @@ def xp_suppresion(xp_gained, user_id):
         xp_gained = xp_gained / (1 + ((character_level - max_world_level) / 10))
         if character_level > max_world_level + 10:
             xp_gained = xp_gained / 3 * (1 + ((character_level - max_world_level) / 10))
-    
+
     # xp gain randomization
     xp_randomizer = random.randint(1,3)
     xp_gained = xp_gained * (0.8 + xp_randomizer / 10)

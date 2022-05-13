@@ -9,6 +9,8 @@ mod = 741152373921022092
 class Essence(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+    
+    
 
     @app_commands.command(description="Gives you the artist role and access to talk in the art channel")
     async def artist(self, interaction: discord.Interaction):
@@ -65,36 +67,6 @@ class Essence(commands.Cog):
         embed = discord.Embed(description=f"Pong! {round(self.bot.latency * 1000)}ms", colour=0x800080)
         embed.set_author(name=(f"{member.nick}'s Command"), icon_url=member.display_avatar)
         await interaction.response.send_message(embed=embed)
-
-    """@app_commands.command()
-    @commands.has_permissions(administrator = True)
-    async def note(self, interaction: discord.Interaction, arg: str or None):
-        member = interaction.user
-        with sqlite3.connect('DB Storage/essence.db') as db:
-            cursor = db.cursor()
-            cursor.execute("SELECT note_desc FROM customs WHERE note_name = ?", (arg,))
-            note_desc = cursor.fetchone()
-            note_desc = note_desc[0]
-            cursor.execute("SELECT note_owner FROM customs WHERE note_name = ?", (arg,))
-            note_owner = cursor.fetchone()
-            note_owner = note_owner[0]
-        if not arg == "edit":
-            embed = discord.Embed(description=f"{note_desc}", colour=0x800080)
-            embed.set_author(name=(f"{member.nick}'s Command"), icon_url=member.display_avatar)
-            await interaction.response.send_message(embed=embed)
-        elif arg == "edit":
-            if note_owner == member.id:
-                sql = ("UPDATE customs SET note desc = ? WHERE note_name = ?")
-                val = (kwarg, arg)
-                cursor.execute(sql, val)
-                db.commit
-                embed = discord.Embed(description=f"{arg} note updated.", colour=0x800080)
-                embed.set_author(name=(f"{member.nick}'s Command"), icon_url=member.display_avatar)
-                await interaction.response.send_message(embed=embed)
-            else:
-        embed = discord.Embed(description=f"{arg}", colour=0x800080)
-        embed.set_author(name=(f"{member.nick}'s Command"), icon_url=member.display_avatar)
-        await interaction.response.send_message(embed=embed)"""
 
     @app_commands.command(description="Set the bot's status")
     async def setstatus(self, interaction: discord.Interaction, *, status: str):

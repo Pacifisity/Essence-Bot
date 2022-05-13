@@ -230,7 +230,7 @@ class Party(commands.Cog, app_commands.Group):
             cursor.execute(sql, val)
             db.commit()
             if pill == 1:
-                embed.add_field(value="You've gained a brain bean!")
+                embed.add_field(name='-', value="You've gained a brain bean!")
                 sql = "UPDATE users SET brain_pills = ? WHERE user_id = ?"
                 val = (brain_pills + 1, member.id)
                 cursor.execute(sql, val)
