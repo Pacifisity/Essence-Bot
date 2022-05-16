@@ -340,7 +340,7 @@ class User(commands.Cog):
         if not about == None:
             embed.add_field(name=f"About {nickname}", value=about, inline=False)
         else:
-            embed.add_field(name=f"About {nickname}", value="Tell us a bit about yourself with /essence aboutme!", inline=False)
+            embed.add_field(name=f"About {nickname}", value="Tell us a bit about yourself with /aboutme!", inline=False)
         if not effects == "":
             embed.add_field(name="Effects", value=effects, inline=False)
         embed.add_field(name="Next Reward", value=Reward, inline=False)

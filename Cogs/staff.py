@@ -6,24 +6,41 @@ from discord.ext import commands
 admin = 795441220885151784
 mod = 741152373921022092
 
+def voice_reward(member_id):
+    with sqlite3.connect('DB Storage/essence.db') as db:
+        cursor = db.cursor()
+    timestamp = round(datetime.now().timestamp())
+    cursor.execute(f"SELECT activity_points FROM users WHERE user_id = ?", (member_id,))
+    ap = cursor.fetchone(); ap = ap[0]
+    if ap == None:
+        ap = 0
+    cursor.execute(f"SELECT voice_delay FROM users WHERE user_id = ?", (member_id,))
+    voice_delay = cursor.fetchone(); voice_delay = voice_delay[0]
+    if voice_delay == None:
+        voice_delay = 0
+    cursor.execute(f"SELECT apmulti FROM users WHERE user_id = ?", (member_id,))
+    ap_multi = cursor.fetchone(); ap_multi = ap_multi[0]
+    if ap_multi == None:
+        ap_multi = 0
+        
+    if ap_multi + 86400 >= timestamp:
+        voice_channel_points = round((timestamp - voice_delay) / 15) + ap
+    else:
+        voice_channel_points = round((timestamp - voice_delay) / 30) + ap
+    sql = "UPDATE users SET activity_points = ?, voice_delay = ? WHERE user_id = ?"
+    val = (voice_channel_points, timestamp, member_id)
+    cursor.execute(sql, val)
+    db.commit()
+
 class Staff(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     @app_commands.command(description="Get the current timestamp")
     @app_commands.checks.has_permissions(manage_messages=True)
-    async def timestamp(self, interaction: discord.Interaction, time_intervals: int, iterations: str):
+    async def timestamp(self, interaction: discord.Interaction, added_time: int):
         member = interaction.user
         timestamp = round(datetime.now().timestamp())
-        if iterations == "d":
-            iterations = 86400
-        if iterations == "h":
-            iterations = 3200
-        if iterations == "m":
-            iterations = 60
-        if iterations == "s":
-            iterations = 1
-        added_time = time_intervals * iterations
         timestamp = timestamp + added_time
         embed = discord.Embed(description=f"Timestamp: {timestamp}, TT: <t:{timestamp}:t>", colour=0x800080)
         embed.set_author(name=(f"{member.nick}'s Command"), icon_url=member.display_avatar)
@@ -138,7 +155,7 @@ class Staff(commands.Cog):
     @app_commands.checks.has_permissions(manage_messages=True)
     async def purge(self, interaction: discord.Interaction, messages: int):
         await interaction.channel.purge(limit = messages + 1)
-        await interaction.response.send_message(f"The messages have been deleted!", delete_after=3)
+        await interaction.response.send_message(f"The messages have been deleted!")
 
     @app_commands.command()
     @app_commands.checks.has_permissions(ban_members=True)
@@ -160,40 +177,6 @@ class Staff(commands.Cog):
             await interaction.response.send_message(f"{member} has lost {(kwarg * -1)} party points.")
         return
 
-    '''@app_commands.command(name="massrole")
-    e(administrator = True)
-    async def massrole(self, interaction: discord.Interaction):
-        role = discord.utils.get(ctx.guild.roles, id=(926962318053629982))
-        for member in ctx.guild.members:
-            print(str(member) + " given OG role")
-            await member.add_roles(role)
-        return'''
-        
-    @app_commands.command(name="ban")
-    @app_commands.checks.has_permissions(ban_members=True)
-    async def ban(self, interaction: discord.Interaction, member: discord.Member, reason: str or None):
-        await member.ban(reason = reason)
-        await interaction.response.send_message(f"Banned {member.mention} for {reason}")
-        return
-    
-    # Failed user unban command
-    """
-    @app_commands.command(name="unban")
-    e(administrator = True)
-    async def unban(interaction: discord.Interaction, member, *, reason = None):
-        banned_users = await ctx.guild.bans()
-        member_name, member_discriminator = member.split("#")
-
-        for ban_entry in banned_users:
-            user = ban_entry.user
-
-        if (user.name, user.discriminator) == (member_name, member_discriminator):
-            await ctx.guild.unban(user)
-            await interaction.response.send_message(f'Unbanned {user.mention} for {reason}')
-            return
-        return
-    """
-
     @commands.Cog.listener() # Activity points for spending time in voice channels
     async def on_voice_state_update(self, member, before, after):
         member_id = member.id
@@ -211,28 +194,7 @@ class Staff(commands.Cog):
             if after.afk:
                 return
             else:
-                cursor.execute(f"SELECT activity_points FROM users WHERE user_id = ?", (member_id,))
-                ap = cursor.fetchone()
-                if ap == None:
-                    ap = 0
-                else:
-                    ap = ap[0]
-                cursor.execute(f"SELECT voice_delay FROM users WHERE user_id = ?", (member_id,))
-                result = cursor.fetchone()
-                cursor.execute(f"SELECT apmulti FROM users WHERE user_id = ?", (member_id,))
-                apmulti = cursor.fetchone()
-                if not apmulti == None:
-                    apmulti = apmulti[0]
-                if apmulti == None:
-                    voice_channel_points = round((timestamp - result[0]) / 30) + ap
-                elif apmulti + 86400 >= timestamp:
-                    voice_channel_points = round((timestamp - result[0]) / 15) + ap
-                else:
-                    voice_channel_points = round((timestamp - result[0]) / 30) + ap
-                sql = "UPDATE users SET activity_points = ?, voice_delay = ? WHERE user_id = ?"
-                val = (voice_channel_points, timestamp, member_id)
-                cursor.execute(sql, val)
-                db.commit()
+                voice_reward(member_id)
         if before.self_deaf and not after.self_deaf:
             if after.afk:
                 return
@@ -245,59 +207,17 @@ class Staff(commands.Cog):
             if not before.channel:
                 pass
             if before.channel:
-                cursor.execute(f"SELECT activity_points FROM users WHERE user_id = ?", (member_id,))
-                ap = cursor.fetchone()
-                if ap == None:
-                    ap = 0
-                else:
-                    ap = ap[0]
-                cursor.execute(f"SELECT voice_delay FROM users WHERE user_id = ?", (member_id,))
-                result = cursor.fetchone()
-                cursor.execute(f"SELECT apmulti FROM users WHERE user_id = ?", (member_id,))
-                apmulti = cursor.fetchone()
-                if not apmulti == None:
-                    apmulti = apmulti[0]
-                if apmulti == None:
-                    voice_channel_points = round((timestamp - result[0]) / 30) + ap
-                elif apmulti + 86400 >= timestamp:
-                    voice_channel_points = round((timestamp - result[0]) / 15) + ap
-                else:
-                    voice_channel_points = round((timestamp - result[0]) / 30) + ap
-                sql = "UPDATE users SET activity_points = ?, voice_delay = ? WHERE user_id = ?"
-                val = (voice_channel_points, timestamp, member_id)
-                cursor.execute(sql, val)
-                db.commit()
+                voice_reward(member_id)
         if before.afk:
             sql = "UPDATE users SET voice_delay = ? WHERE user_id = ?"
             val = (timestamp, member_id)
             cursor.execute(sql, val)
             db.commit()
         if not after.channel:
-            cursor.execute(f"SELECT activity_points FROM users WHERE user_id = ?", (member_id,))
-            ap = cursor.fetchone()
-            if ap == None:
-                ap = 0
-            else:
-                ap = ap[0]
-            cursor.execute(f"SELECT voice_delay FROM users WHERE user_id = ?", (member_id,))
-            result = cursor.fetchone()
-            cursor.execute(f"SELECT apmulti FROM users WHERE user_id = ?", (member_id,))
-            apmulti = cursor.fetchone()
-            if not apmulti == None:
-                apmulti = apmulti[0]
-            if apmulti == None:
-                voice_channel_points = round((timestamp - result[0]) / 30) + ap
-            elif apmulti + 86400 >= timestamp:
-                voice_channel_points = round((timestamp - result[0]) / 15) + ap
-            else:
-                voice_channel_points = round((timestamp - result[0]) / 30) + ap
-            sql = "UPDATE users SET activity_points = ?, voice_delay = ? WHERE user_id = ?"
-            val = (voice_channel_points, timestamp, member_id)
-            cursor.execute(sql, val)
-            db.commit()
+            voice_reward(member_id)
         return
     
-    @commands.Cog.listener()
+    @commands.Cog.listener() # on member join ------------------------------------------------------------------------------------------------------------------------------------------------------------
     async def on_member_join(self, member: discord.Member):
         channel = self.bot.get_channel(750801805490913362)
         user_id = member.id
@@ -334,28 +254,130 @@ class Staff(commands.Cog):
         embed = discord.Embed(description=f"{member.mention} has joined our community :clap:", color=0xFFFFFF)
         await channel.send(embed=embed)
     
-    @commands.Cog.listener()
+    @commands.Cog.listener() # On member leave ----------------------------------------------------------------------------------------------------------------------------------------------------
     async def on_member_remove(self, member: discord.Member):
         channel = self.bot.get_channel(750801805490913362)
         embed = discord.Embed(description=f"{member.mention} has left our community :sob:")
         await channel.send(embed=embed)
+        
+    @commands.Cog.listener() # Message deleted ------------------------------------------------------------------------------------------------------------------------------------------------------
+    async def on_message_delete(self, message: discord.Message):
+        if message.guild == None:
+            return
+        if message.author.id == 920471516817260564:
+            return
+        
+        log_channel = self.bot.get_channel(932351834734096494)
+        
+        embed = discord.Embed(description=f"**Deleted Message from {message.author} in {message.channel}**:\n{message.content}", colour=0x800080)
+        await log_channel.send(embed=embed)
 
-    @commands.Cog.listener() # Message logger
+    @commands.Cog.listener() # Message sent --------------------------------------------------------------------------------------------------------------------------------------------------------
     async def on_message(self, message: discord.Message):
         if message.guild == None:
             return
         if message.author.id == 920471516817260564:
             return
-            
+
         log_channel, log_channel2 = self.bot.get_channel(932351834734096494), self.bot.get_channel(969009985512157194)
+        user_id = message.author.id
+        timestamp = round(datetime.now().timestamp())
+        config_line = 'spirit'
         
-        if message.channel == self.bot.get_channel(735131468145360917):
+        with sqlite3.connect('DB Storage/essence.db') as db:
+            cursor = db.cursor()
+            cursor.execute(f"SELECT count, counter FROM server WHERE party = ?", (config_line,))
+            counting_information = cursor.fetchone(); count = counting_information[0]; counter = counting_information[1]
+            cursor.execute(f"SELECT story, writer FROM server WHERE party = ?", (config_line,))
+            story_information = cursor.fetchone(); story = str(story_information[0]); writer = story_information[1]
+            cursor.execute(f"SELECT user_count FROM users WHERE user_id = ?", (user_id,))
+            user_count = cursor.fetchone(); user_count = user_count[0]
+            cursor.execute(f"SELECT activity_points FROM users WHERE user_id = ?", (user_id,))
+            result = cursor.fetchone()
+        
+        if message.channel == self.bot.get_channel(975885688681680986): # two word story ---------------------------------------------------------------------------------------------------------------------
+            if writer == user_id:
+                embed = discord.Embed(description=f"**{message.author} tried to hog the story**", colour=0x800080)
+                await message.channel.send(embed=embed, delete_after=3)
+                await message.delete()
+
+            elif message.content.lower() == 'the end':
+                await message.channel.set_permissions(message.guild.default_role, send_messages=False)
+                purge_amount = round(len(story.split()) / 2)
+                await message.channel.purge(limit=purge_amount + 2)
+                embed = discord.Embed(description=f"**THE END, sent by {message.author}**\n```{story}```\n\nIf you want to save the story, please copy and paste it now or else it will be deleted forever at the end of the next story!", colour=0x800080)
+                await message.channel.send(embed=embed)
+                sql = "UPDATE server SET story = ?, writer = ? WHERE party = ?"
+                val = (None, None, config_line)
+                cursor.execute(sql, val)
+                db.commit()
+                await message.channel.set_permissions(message.guild.default_role, send_messages=True)
+
+            elif not len(message.content.split()) == 2:
+                embed = discord.Embed(description=f"**{message.author} didn't say 2 words**", colour=0x800080)
+                await message.channel.send(embed=embed, delete_after=3)
+                await message.delete()
+
+            else:
+                if story == 'None':
+                    story = message.content
+                else:
+                    story = story + ' ' + message.content
+                sql = "UPDATE server SET story = ?, writer = ? WHERE party = ?"
+                val = (story, user_id, config_line)
+                cursor.execute(sql, val)
+                db.commit()
+
+        if message.channel == self.bot.get_channel(975549476880154644): # counting ---------------------------------------------------------------------------------------------------------------------
+            if user_count == None:
+                user_count = 0
+            if not message.content.isdigit():
+                await message.channel.set_permissions(message.guild.default_role, send_messages=False)
+                sql = "UPDATE server SET count = ? WHERE party = ?"
+                val = (0, config_line)
+                cursor.execute(sql, val)
+                db.commit()
+                await message.channel.purge(limit=count + 10)
+                embed = discord.Embed(description=f"**Non integer sent by {message.author}**:\n{message.content}", colour=0x800080)
+                await message.channel.send(embed=embed)
+                await message.channel.set_permissions(message.guild.default_role, send_messages=True)
+            elif counter == user_id:
+                await message.channel.set_permissions(message.guild.default_role, send_messages=False)
+                sql = "UPDATE server SET count = ? WHERE party = ?"
+                val = (0, config_line)
+                cursor.execute(sql, val)
+                db.commit()
+                await message.channel.purge(limit=count + 10)
+                embed = discord.Embed(description=f"**Double input from {message.author}**:\n{message.content}", colour=0x800080)
+                await message.channel.send(embed=embed)
+                await message.channel.set_permissions(message.guild.default_role, send_messages=True)
+            elif int(message.content) == count + 1:
+                if user_count < count + 1:
+                    sql = "UPDATE users SET user_count = ? WHERE user_id = ?"
+                    val = (count + 1, user_id)
+                    cursor.execute(sql, val)
+                sql = "UPDATE server SET count = ?, counter = ? WHERE party = ?"
+                val = (count + 1, user_id, config_line)
+                cursor.execute(sql, val)
+                db.commit()
+            else:
+                await message.channel.set_permissions(message.guild.default_role, send_messages=False)
+                sql = "UPDATE server SET count = ? WHERE party = ?"
+                val = (0, config_line)
+                cursor.execute(sql, val)
+                db.commit()
+                await message.channel.purge(limit=count + 10)
+                embed = discord.Embed(description=f"**Wrong Number from {message.author}**:\n{message.content}", colour=0x800080)
+                await message.channel.send(embed=embed)
+                await message.channel.set_permissions(message.guild.default_role, send_messages=True)
+
+        if message.channel == self.bot.get_channel(735131468145360917): # commands
             if not message.author.id == 920471516817260564:
                 embed = discord.Embed(description=f"**Deleted Message from {message.author} in {message.channel}**:\n{message.content}", colour=0x800080)
                 await log_channel.send(embed=embed)
                 await message.delete()
 
-        if message.channel == self.bot.get_channel(940775609183924304):
+        if message.channel == self.bot.get_channel(940775609183924304): # no mic
             if not message.author.id == 920471516817260564:
                 voice_state = message.author.voice
                 if voice_state == None:
@@ -363,15 +385,8 @@ class Staff(commands.Cog):
                     await log_channel.send(embed=embed)
                     await message.delete()
                     await message.channel.send(f"You can't talk here because you are not in a voice channel, {message.author.mention}", delete_after=5)
-
-        user_id = message.author.id
-        timestamp = round(datetime.now().timestamp())
-
-        with sqlite3.connect('DB Storage/essence.db') as db:
-            cursor = db.cursor()
-        cursor.execute(f"SELECT activity_points FROM users WHERE user_id = ?", (user_id,))
-        result = cursor.fetchone()
-        if result == None:
+                    
+        if result == None: # activity points ----------------------------------------------------------------------------------------------------------------------------------------------------------------
             sql = "INSERT INTO users(user_id, activity_points, message_delay) VALUES (?, ?, ?)"
             val = (user_id, 1, timestamp)
             print("User added to database")

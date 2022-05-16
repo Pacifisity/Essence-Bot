@@ -11,6 +11,7 @@ for the next event.
 
 ----------- Purple (Important) ----------------------------------------------------
 
+Add a way to manually give someone streaming perms for an amount of time
 Ping supervisor 1 hour before event, ping participants 10 minutes before event, auto roll on monday at 7pm and auto start on saturday at 7pm
 save member list before and after bot goes offline, then compare it and run on_member_join for all new members
 Proper inventory system
@@ -29,6 +30,7 @@ Events that can be longer than a month
 
 ----------- Red (Not Important) ----------------------------------------------------
 
+# conduct polls, giveaways, generate sick memes, currency system, TIMERS, 
 Temporarily restricts certain roles for moderators for testing purposes
 Custom response messages
 Weekly/Monthly leaderboard

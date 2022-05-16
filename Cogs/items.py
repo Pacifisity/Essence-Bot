@@ -54,11 +54,12 @@ class Item(commands.Cog, app_commands.Group):
         embed.add_field(name="Impurity (5PP)", value="Smear a users name in the ultimate color of shame", inline=False)
         await interaction.response.send_message(embed=embed)
     
-#    @commands.command(name="inventory", description="Take a look at your inventory")
-#    async def inventory(interaction: discord.Interaction, ctx: commands.Context):
-#        embed = discord.Embed(description="Placeholder")
-#        embed.set_author(name=(f"{ctx.author.nick}"), icon_url=discord.Member.display_avatar)
-#        ctx.send(embed=embed)
+    @app_commands.command(description="Open your inventory")
+    async def inventory(self, interaction: discord.Interaction):
+        member = interaction.user
+        embed = discord.Embed(description=f"test")
+        embed.set_author(name=(f"{member.nick}'s inventory"), icon_url=member.display_avatar)
+        await interaction.response.send_message(embed=embed)
 
 async def setup(bot: commands.Bot):
     print("Items Cog Ready")

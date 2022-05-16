@@ -10,7 +10,15 @@ class Essence(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
     
-    
+    @app_commands.command(description="Write a note you can pull up at any time")
+    async def note(self, interaction: discord.Interaction, options: str, note: str):
+        member = interaction.user
+        note_check = note.count('@')
+        if not note_check > 0:
+            print(note)
+        else:
+            print("Pain, don't try that")
+
 
     @app_commands.command(description="Gives you the artist role and access to talk in the art channel")
     async def artist(self, interaction: discord.Interaction):
@@ -89,11 +97,11 @@ class Essence(commands.Cog):
             await interaction.response.send_message(embed=embed)
     
     @app_commands.command(description="Look at the different leaderboards")
-    async def leaderboard(self, interaction: discord.Interaction, arg: str):
+    async def leaderboard(self, interaction: discord.Interaction, board: str):
         member = interaction.user
         with sqlite3.connect('DB Storage/essence.db') as db:
                 cursor = db.cursor()
-        if arg == 'pp':
+        if board == 'pp':
             cursor.execute(f"SELECT user_id, party_points, party FROM users GROUP BY user_id ORDER BY 2 DESC LIMIT 10")
             lb = cursor.fetchall()
             cursor.execute(f"SELECT party, SUM(party_points) FROM users GROUP BY party")
@@ -102,7 +110,7 @@ class Essence(commands.Cog):
             embed.add_field(name="Cumulative party points", value=f"{lb2[4][0]} {lb2[4][1]} ₽₽ | {lb2[2][0]} {lb2[2][1]} ₽₽ | {lb2[1][0]} {lb2[1][1]} ₽₽ | {lb2[3][0]} {lb2[3][1]} ₽₽")
             embed.set_author(name=(f"{member.nick}'s Command"), icon_url=member.display_avatar)
             await interaction.response.send_message(embed=embed)
-        if arg == 'ap':
+        if board == 'ap':
             cursor.execute(f"SELECT user_id, activity_points, party FROM users GROUP BY user_id ORDER BY 2 DESC LIMIT 10")
             lb = cursor.fetchall()
             cursor.execute(f"SELECT party, SUM(activity_points) FROM users GROUP BY party")
@@ -111,14 +119,20 @@ class Essence(commands.Cog):
             embed.add_field(name="Cumulative party points", value=f"{lb2[4][0]} {lb2[4][1]} A₽ | {lb2[2][0]} {lb2[2][1]} A₽ | {lb2[1][0]} {lb2[1][1]} A₽ | {lb2[3][0]} {lb2[3][1]} A₽")
             embed.set_author(name=(f"{member.nick}'s Command"), icon_url=member.display_avatar)
             await interaction.response.send_message(embed=embed)
-        if arg == 'ip':
+        if board == 'ip':
             embed = discord.Embed(description=f"Coming Soon", colour=0x800080)
             embed.set_author(name=(f"{member.nick}'s Command"), icon_url=member.display_avatar)
             await interaction.response.send_message(embed=embed)
-        if arg == 'ep':
+        if board == 'ep':
             cursor.execute(f"SELECT party, essence_points FROM server ORDER BY 2 DESC LIMIT 4")
             lb = cursor.fetchall()
             embed = discord.Embed(title="Essence Point Leaderboard", description=f":first_place: Party {str.upper(lb[0][0])} with {lb[0][1]} E₽!\n :second_place: Party {str.upper(lb[1][0])} with {lb[1][1]} E₽!\n :third_place: Party {str.upper(lb[2][0])} with {lb[2][1]} E₽!\n :medal: Party {str.upper(lb[3][0])} with {lb[3][1]} E₽!", colour=0x800080, timestamp=datetime.utcnow())
+            embed.set_author(name=(f"{member.nick}'s Command"), icon_url=member.display_avatar)
+            await interaction.response.send_message(embed=embed)
+        if board == 'c':
+            cursor.execute(f"SELECT user_id, user_count FROM users GROUP BY user_id ORDER BY 2 DESC LIMIT 10")
+            lb = cursor.fetchall()
+            embed = discord.Embed(title="Counting Leaderboard", description=f":first_place: <@{lb[0][0]}> with {lb[0][1]} high score!\n :second_place: <@{lb[1][0]}> with {lb[1][1]} high score!\n :third_place: <@{lb[2][0]}> with {lb[2][1]} high score!\n :medal: <@{lb[3][0]}> with {lb[3][1]} high score!\n :medal: <@{lb[4][0]}> with {lb[4][1]} high score!\n :medal: <@{lb[5][0]}> with {lb[5][1]} high score!\n :medal: <@{lb[6][0]}> with {lb[6][1]} high score!\n :medal: <@{lb[7][0]}> with {lb[7][1]} high score!\n :medal: <@{lb[8][0]}> with {lb[8][1]} high score!\n :medal: <@{lb[9][0]}> with {lb[9][1]} high score!", colour=0x800080, timestamp=datetime.utcnow())
             embed.set_author(name=(f"{member.nick}'s Command"), icon_url=member.display_avatar)
             await interaction.response.send_message(embed=embed)
 
