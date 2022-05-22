@@ -3,3 +3,4 @@ SensitiveData/*
 Scrapped Code/*
 Images/*
 DB Storage/Other/Random/*
+__pycache__/*
