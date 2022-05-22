@@ -43,7 +43,7 @@ class Staff(commands.Cog):
         await self.bot.wait_until_ready()
         while not self.bot.is_closed():
             timestamp = round(datetime.now().timestamp())
-            test_channel = self.bot.get_channel(920479737405644830)
+            commands = self.bot.get_channel(976345658644631623)
             with sqlite3.connect('DB Storage/essence.db') as db:
                 cursor = db.cursor()
 
@@ -58,7 +58,7 @@ class Staff(commands.Cog):
                     if daily == None or notifications == None or notifications == 0 or reminder == None or reminder == 0:
                         pass
                     elif daily <= (timestamp - 86400):
-                        await test_channel.send(f"<@{member_id}> your daily party point is ready")
+                        await commands.send(f"<@{member_id}> your daily party point is ready", delete_after=10)
                         sql = "UPDATE users SET daily_reminder = ? WHERE user_id = ?"
                         val = (0, member_id)
                         cursor.execute(sql, val)

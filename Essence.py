@@ -1,10 +1,7 @@
 # Discord API --------------------------------------------------
 import discord
 import sqlite3
-import schedule
-import time
 from discord.ext import commands
-from discord import app_commands
 from dotenv import load_dotenv
 from os import getenv
 
@@ -34,7 +31,7 @@ class HelpCommand(commands.HelpCommand):
         return await super().send_command_help(command)
 
 # Bot Config --------------------------------------------------
-bot = commands.Bot(command_prefix = "$", help_command=HelpCommand(), intents = intents)
+bot = commands.Bot(command_prefix = "$", intents = intents)
 guild = 725164114506285066
 
 @bot.command(name="sync") # Sync Command
