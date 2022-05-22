@@ -11,41 +11,25 @@ for the next event.
 
 ----------- Purple (Important) ----------------------------------------------------
 
-Add a way to manually give someone streaming perms for an amount of time
-Ping supervisor 1 hour before event, ping participants 10 minutes before event, auto roll on monday at 7pm and auto start on saturday at 7pm
+Ping supervisor 1 hour before event, ping participants 10 minutes before event, auto roll on monday at 7pm and auto start on saturday at 7pm, conduct a poll for events
 save member list before and after bot goes offline, then compare it and run on_member_join for all new members
-Proper inventory system
-Create a leveling system beyond vip that will allow you to get better things
 Duels for party points
 Game missions and bounties
-Reaction roles/buttons
-Shop for party points - *
-Punishment system
-Game role commands/reaction roles
-Add the ability to fight between members
-Help command update
 Trading
 Ping when daily is ready
-Events that can be longer than a month
 
 ----------- Red (Not Important) ----------------------------------------------------
 
-# conduct polls, giveaways, generate sick memes, currency system, TIMERS, 
-Temporarily restricts certain roles for moderators for testing purposes
+giveaway function
 Custom response messages
 Weekly/Monthly leaderboard
 Shop for essence points
 Rock, paper, scissors
 Message badges
-Music
-Art channel auto mod
-Two word story auto mod
-Server statistics
 
 ----------- Blue (Unnecessary) ----------------------------------------------------
 
 Ghost ping detector
-lastfm api
 save all images in a channel and add a command to see a random one
-a log for whenever you use or gain points* (Going to need to create an audit logger)
+a log for whenever you use or gain points* (Going to need to create an audit function)
 VC inactivity kick after 5 minutes of not talking

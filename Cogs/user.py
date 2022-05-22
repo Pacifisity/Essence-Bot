@@ -9,313 +9,121 @@ class User(commands.Cog):
         self.bot = bot
 
     @app_commands.command(description="See your Essence profile!")
-    async def profile(self, interaction: discord.Interaction, arg: discord.Member = None):
-        if arg == None:
-            member = interaction.user
-        else:
-            member = arg
+    async def profile(self, interaction: discord.Interaction, member: discord.Member = None):
+        member = member or interaction.user
         member_id = member.id
         timestamp = round(datetime.now().timestamp())
+        command_logs = self.bot.get_channel(976519708096467025)
         guild_roles = [
-        discord.utils.get(interaction.guild.roles, id=(867097611323310082)), # Visitor 0
-        discord.utils.get(interaction.guild.roles, id=(730626889709781043)), # Guest 1
-        discord.utils.get(interaction.guild.roles, id=(795491852533891112)), # Member 2
-        discord.utils.get(interaction.guild.roles, id=(865644597140258827)), # Honorary Member 3
-        discord.utils.get(interaction.guild.roles, id=(865644927114412073)), # VIP 4
-        discord.utils.get(interaction.guild.roles, id=(741152373921022092)), # Moderator 5
-        discord.utils.get(interaction.guild.roles, id=(795441220885151784)), # Administrator 6
-        discord.utils.get(interaction.guild.roles, id=(734838525144596493)), # Robot 7
-        discord.utils.get(interaction.guild.roles, id=(926660576980111370)), # Spirit 8
-        discord.utils.get(interaction.guild.roles, id=(926660721054462083)), # Mana 9
-        discord.utils.get(interaction.guild.roles, id=(926660747713474600)), # Aura 10
-        discord.utils.get(interaction.guild.roles, id=(928466489588191322)), # Nature 11
-        discord.utils.get(interaction.guild.roles, id=(934956487107813426))] # Impurity 12
-        Visitor = guild_roles[0]
-        Guest = guild_roles[1]
-        Member = guild_roles[2]
-        HonoraryMember = guild_roles[3]
-        VIP = guild_roles[4]
-        Moderator = guild_roles[5]
-        Administrator = guild_roles[6]
-        Robot = guild_roles[7]
-        Spirit = guild_roles[8]
-        Mana = guild_roles[9]
-        Aura = guild_roles[10]
-        Nature = guild_roles[11]
-        Impurity = guild_roles[12]
+        discord.utils.get(interaction.guild.roles, id=(867097611323310082)), # visitor 0
+        discord.utils.get(interaction.guild.roles, id=(730626889709781043)), # guest 1
+        discord.utils.get(interaction.guild.roles, id=(795491852533891112)), # member 2
+        discord.utils.get(interaction.guild.roles, id=(865644597140258827)), # Honorary member 3
+        discord.utils.get(interaction.guild.roles, id=(865644927114412073)), # vip 4
+        discord.utils.get(interaction.guild.roles, id=(741152373921022092)), # mod 5
+        discord.utils.get(interaction.guild.roles, id=(795441220885151784)), # admin 6
+        discord.utils.get(interaction.guild.roles, id=(734838525144596493)), # robot 7
+        discord.utils.get(interaction.guild.roles, id=(926660576980111370)), # spirit 8
+        discord.utils.get(interaction.guild.roles, id=(926660721054462083)), # mana 9
+        discord.utils.get(interaction.guild.roles, id=(926660747713474600)), # aura 10
+        discord.utils.get(interaction.guild.roles, id=(928466489588191322)), # nature 11
+        discord.utils.get(interaction.guild.roles, id=(934956487107813426))] # impurity 12
+        visitor = guild_roles[0]
+        guest = guild_roles[1]
+        member_role = guild_roles[2]
+        honorary_member = guild_roles[3]
+        vip = guild_roles[4]
+        mod = guild_roles[5]
+        admin = guild_roles[6]
+        robot = guild_roles[7]
+        spirit = guild_roles[8]
+        mana = guild_roles[9]
+        aura = guild_roles[10]
+        nature = guild_roles[11]
+        impurity = guild_roles[12]
+        attainable_roles = [visitor, guest, member_role, honorary_member, vip]
+        party_roles = [spirit, mana, aura, nature]
+
         with sqlite3.connect('DB Storage/essence.db') as db: # Updates user's role when they use $profile
             cursor = db.cursor()
             cursor.execute(f"SELECT activity_points FROM users WHERE user_id = ?", (member_id,))
-            messages = cursor.fetchone()
-            if messages == None:
-                messages = 0
-            else:
-                messages = messages[0]
+            activity_points = cursor.fetchone(); activity_points = activity_points[0]
             cursor.execute(f"SELECT party_points FROM users WHERE user_id = ?", (member_id,))
-            partyPoints = cursor.fetchone()
-            if not partyPoints == None:
-                partyPoints = partyPoints[0]
+            party_points = cursor.fetchone(); party_points = party_points[0]
             cursor.execute(f"SELECT party_rank FROM users WHERE user_id = ?", (member_id,))
-            partyRank = cursor.fetchone()
+            party_rank = cursor.fetchone(); party_rank = party_rank[0]
             cursor.execute(f"SELECT about FROM users WHERE user_id = ?", (member_id,))
-            about = cursor.fetchone()
-            if about == None:
-                pass
-            else:
-                about = about[0]
+            about = cursor.fetchone(); about = about[0]
             cursor.execute(f"SELECT apmulti FROM users WHERE user_id = ?", (member_id,))
-            apmulti = cursor.fetchone()
-            if apmulti == None:
-                pass
-            else:
-                apmulti = apmulti[0]
-        if Spirit in member.roles:
-            pRank=f"{Spirit} Party {partyRank[0]}"
-        elif Mana in member.roles:
-            pRank=f"{Mana} Party {partyRank[0]}"
-        elif Aura in member.roles:
-            pRank=f"{Aura} Party {partyRank[0]}"
-        elif Nature in member.roles:
-            pRank=f"{Nature} Party {partyRank[0]}"
-        else:
-            if arg == None:
-                pRank="You are not in a party!"
-            else:
-                pRank="They are not in a party!"
-        if 100 - messages < 0:
-            GAP = ""
-        else:
-            GAP = f"{100 - messages} A₽"
-        if 1000 - messages < 0:
-            MAP = ""
-        else:
-            MAP = f"{1000 - messages} A₽"
-        if 10000 - messages < 0:
-            HMAP = ""
-            if partyPoints is None:
-                HMPP = f" and 25 P₽"
-            elif partyPoints < 25:
-                HMPP = f" and {25 - partyPoints} P₽"
-            else:
-                HMPP = ""
-        else:
-            HMAP = f"{10000 - messages} A₽"
-            if partyPoints is None:
-                HMPP = f" and 25 P₽"
-            elif partyPoints < 25:
-                HMPP = f" and {25 - partyPoints} P₽"
-            else:
-                HMPP = ""
-        if 100000 - messages < 0:
-            VAP = ""
-            if partyPoints is None:
-                VPP = f" and 100 P₽"
-            elif partyPoints < 100:
-                VPP = f" and {100 - partyPoints} P₽"
-            else:
-                VPP = ""
-        else:
-            VAP = f"{100000 - messages} A₽"
-            if partyPoints is None:
-                VPP = f" 100 P₽"
-            elif partyPoints < 100:
-                VPP = f" and {100 - partyPoints} P₽"
-            else:
-                VPP = ""
-        if messages is None: # New user (Visitor role)
-            if Guest in member.roles:
-                Reward = f"{MAP} away from becoming a Member."
-            elif Member in member.roles:
-                Reward = f"{HMAP}{HMPP} away from becoming an Honorary Member."
-            elif HonoraryMember in member.roles:
-                Reward = f"{VAP}{VPP} away from becoming a VIP."
-            elif VIP in member.roles:
-                Reward = f"No further rewards to unlock"
-            elif Moderator in member.roles:
-                Reward = f"No further rewards to unlock"
-            elif Administrator in member.roles:
-                Reward = f"No further rewards to unlock"
-            elif Robot in member.roles:
-                Reward = f"No further rewards to unlock"
-            else:
-                Reward = "100 A₽ away from becoming a Guest."
-        if messages < 100: # New user (Visitor role)
-            if Guest in member.roles:
-                Reward = f"{MAP} away from becoming a Member."
-            elif Member in member.roles:
-                Reward = f"{HMAP}{HMPP} away from becoming an Honorary Member."
-            elif HonoraryMember in member.roles:
-                Reward = f"{VAP}{VPP} away from becoming a VIP."
-            elif VIP in member.roles:
-                Reward = f"No further rewards to unlock"
-            elif Moderator in member.roles:
-                Reward = f"No further rewards to unlock"
-            elif Administrator in member.roles:
-                Reward = f"No further rewards to unlock"
-            elif Robot in member.roles:
-                Reward = f"No further rewards to unlock"
-            else:
-                Reward = f"{GAP} away from becoming a Guest."
-        if messages >= 100: # Guest
-            if Guest in member.roles:
-                Reward = f"{MAP} away from becoming a Member."
-            elif Member in member.roles:
-                Reward = f"{HMAP}{HMPP} away from becoming an Honorary Member."
-            elif HonoraryMember in member.roles:
-                Reward = f"{VAP}{VPP} away from becoming a VIP."
-            elif VIP in member.roles:
-                Reward = f"No further rewards to unlock"
-            elif Moderator in member.roles:
-                Reward = f"No further rewards to unlock"
-            elif Administrator in member.roles:
-                Reward = f"No further rewards to unlock"
-            elif Robot in member.roles:
-                Reward = f"No further rewards to unlock"
-            else:
-                await member.remove_roles(Visitor)
-                await member.add_roles(Guest)
-                Reward = f"You just became a Guest"
-        if messages >= 1000: # Member
-            if Member in member.roles:
-                Reward = f"{HMAP}{HMPP} away from becoming an Honorary Member."
-            elif HonoraryMember in member.roles:
-                Reward = f"{VAP}{VPP} away from becoming a VIP."
-            elif VIP in member.roles:
-                Reward = f"No further rewards to unlock"
-            elif Moderator in member.roles:
-                Reward = f"No further rewards to unlock"
-            elif Administrator in member.roles:
-                Reward = f"No further rewards to unlock"
-            elif Robot in member.roles:
-                Reward = f"No further rewards to unlock"
-            else:
-                await member.remove_roles(Guest)
-                await member.add_roles(Member)
-                Reward = f"You just became a Member"
-        if messages >= 10000: # HonoraryMember
-            if partyPoints is None:
-                if Member in member.roles:
-                    Reward = f"{HMAP}{HMPP} away from becoming an Honorary Member."
-                elif HonoraryMember in member.roles:
-                    Reward = f"{VAP}{VPP} away from becoming a VIP."
-                elif VIP in member.roles:
-                    Reward = f"No further rewards to unlock"
-                elif Moderator in member.roles:
-                    Reward = f"No further rewards to unlock"
-                elif Administrator in member.roles:
-                    Reward = f"No further rewards to unlock"
-                elif Robot in member.roles:
-                    Reward = f"No further rewards to unlock"
-                else:
-                    Reward = f"{HMPP} away from becoming a Honorary Member"
-            elif partyPoints >= 25:
-                if Member in member.roles:
-                    Reward = f"{HMAP}{HMPP} away from becoming an Honorary Member."
-                elif HonoraryMember in member.roles:
-                    Reward = f"{VAP}{VPP} away from becoming a VIP."
-                elif VIP in member.roles:
-                    Reward = f"No further rewards to unlock"
-                elif Moderator in member.roles:
-                    Reward = f"No further rewards to unlock"
-                elif Administrator in member.roles:
-                    Reward = f"No further rewards to unlock"
-                elif Robot in member.roles:
-                    Reward = f"No further rewards to unlock"
-                else:
-                    await member.remove_roles(Member)
-                    await member.add_roles(HonoraryMember)
-                    Reward = f"You just became an Honorary Member"
-            else:
-                if Member in member.roles:
-                    Reward = f"{HMAP}{HMPP} away from becoming an Honorary Member."
-                elif HonoraryMember in member.roles:
-                    Reward = f"{VAP}{VPP} away from becoming a VIP."
-                elif VIP in member.roles:
-                    Reward = f"No further rewards to unlock"
-                elif Moderator in member.roles:
-                    Reward = f"No further rewards to unlock"
-                elif Administrator in member.roles:
-                    Reward = f"No further rewards to unlock"
-                elif Robot in member.roles:
-                    Reward = f"No further rewards to unlock"
-                else:
-                    Reward = f"{HMPP} away from becoming a Honorary Member"
-        if messages >= 100000: # VIP
-            if partyPoints is None:
-                if HonoraryMember in member.roles:
-                    Reward = f"{VAP}{VPP} away from becoming a VIP."
-                elif VIP in member.roles:
-                    Reward = f"No further rewards to unlock"
-                elif Moderator in member.roles:
-                    Reward = f"No further rewards to unlock"
-                elif Administrator in member.roles:
-                    Reward = f"No further rewards to unlock"
-                elif Robot in member.roles:
-                    Reward = f"No further rewards to unlock"
-                else:
-                    Reward = f"{VPP} away from becoming a VIP"
-            elif partyPoints >= 100:
-                if HonoraryMember in member.roles:
-                    Reward = f"{VAP}{VPP} away from becoming a VIP."
-                elif VIP in member.roles:
-                    Reward = f"No further rewards to unlock"
-                elif Moderator in member.roles:
-                    Reward = f"No further rewards to unlock"
-                elif Administrator in member.roles:
-                    Reward = f"No further rewards to unlock"
-                elif Robot in member.roles:
-                    Reward = f"No further rewards to unlock"
-                else:
-                    await member.remove_roles(HonoraryMember)
-                    await member.add_roles(VIP)
-                    Reward = f"You just became a VIP"
-            else:
-                if HonoraryMember in member.roles:
-                    Reward = f"{VAP}{VPP} away from becoming a VIP."
-                elif VIP in member.roles:
-                    Reward = f"No further rewards to unlock"
-                elif Moderator in member.roles:
-                    Reward = f"No further rewards to unlock"
-                elif Administrator in member.roles:
-                    Reward = f"No further rewards to unlock"
-                elif Robot in member.roles:
-                    Reward = f"No further rewards to unlock"
-                else:
-                    Reward = f"{VPP} away from becoming a VIP"
-                    
-        if Visitor in member.roles:
-            sRank=Visitor
-        elif Guest in member.roles:
-            sRank=Guest
-        elif Member in member.roles:
-            sRank=Member
-        elif HonoraryMember in member.roles:
-            sRank=HonoraryMember
-        elif VIP in member.roles:
-            sRank=VIP
-        elif Moderator in member.roles:
-            sRank=Moderator
-        elif Administrator in member.roles:
-            sRank=Administrator
-        elif Robot in member.roles:
-            sRank=Robot
+            apmulti = cursor.fetchone(); apmulti = apmulti[0]
 
-        if arg == None:
-            if messages == 0:
-                desc = "This user has never sent a message, you should invite them to a conversation."
+        for party in party_roles:
+            if party in member.roles:
+                party_rank = f"{party} party {party_rank}"
+                party_check = 1
+        if party_check != 1:
+            party_rank = None
+
+        if activity_points >= 100000 and party_points >= 100: # vip
+            if vip or mod or admin in member.roles:
+                Reward = None
             else:
-                if partyPoints == 0 or partyPoints is None:
-                    desc = f"You have {messages} A₽ in Essence!"
-                else:
-                    desc = f"You have {messages} A₽ in Essence, you also have {partyPoints} P₽!"
+                member.add_roles(vip)
+                for role in attainable_roles:
+                    if role in member.roles:
+                        member.remove_roles(role)
+
+        elif activity_points >= 10000 and party_points >= 25: # Honorary member
+            if vip or mod or admin in member.roles:
+                Reward = None
+            elif honorary_member in member.roles:
+                Reward = f"{100000 - activity_points} more activity points and {100 - party_points} party points to unlock the next role!"
+            else:
+                member.add_roles(honorary_member)
+                for role in attainable_roles:
+                    if role in member.roles:
+                        member.remove_roles(role)
+
+        elif activity_points >= 1000: # member
+            if honorary_member or vip or mod or admin in member.roles:
+                Reward = None
+            elif member_role in member.roles:
+                Reward = f"{10000 - activity_points} more activity points and {25 - party_points} party points to unlock the next role!"
+            else:
+                member.add_roles(member_role)
+                for role in attainable_roles:
+                    if role in member.roles:
+                        member.remove_roles(role)
+
+        elif activity_points >= 100: # guest
+            if member_role or honorary_member or vip or mod or admin in member.roles:
+                Reward = None
+            elif guest in member.roles:
+                Reward = f"{1000 - activity_points} more activity points to unlock the next role!"
+            else:
+                member.add_roles(guest)
+                for role in attainable_roles:
+                    if role in member.roles:
+                        member.remove_roles(role)
+
+        elif activity_points >= 0: # visitor
+            if guest or member_role or honorary_member or vip or mod or admin in member.roles:
+                Reward = None
+            elif visitor in member.roles:
+                Reward = f"{100 - activity_points} more activity points to unlock the next role!"
+            else:
+                member.add_roles(visitor)
+                for role in attainable_roles:
+                    if role in member.roles:
+                        member.remove_roles(role)
+                        
+        if activity_points == 0:
+            desc = "This user has never sent a message, you should invite them to a conversation."
         else:
-            if messages == 0:
-                desc = "This user has never sent a message, you should invite them to a conversation."
+            if party_points == 0 or party_points is None:
+                desc = f"They have {activity_points} A₽ in Essence!"
             else:
-                if partyPoints == 0 or partyPoints is None:
-                    desc = f"They have {messages} A₽ in Essence!"
-                else:
-                    desc = f"They have {messages} A₽ in Essence, they also have {partyPoints} P₽!"
+                desc = f"They have {activity_points} A₽ in Essence, they also have {party_points} P₽!"
 
         if member.nick == None:
             nickname = member.name
@@ -327,7 +135,7 @@ class User(commands.Cog):
         else:
             apmultieffect = f"\n2x A₽ until <t:{apmulti + 86400}:t>"
 
-        if Impurity in member.roles:
+        if impurity in member.roles:
             impurityeffect = f"\nImpure"
         else:
             impurityeffect = ""
@@ -335,39 +143,39 @@ class User(commands.Cog):
             
         embed = discord.Embed(description=desc, colour=0x800080, timestamp=datetime.utcnow())
         embed.set_author(name=(f"{nickname}'s Profile"), icon_url=member.display_avatar)
-        embed.add_field(name="Server Rank", value=sRank, inline=True)
-        embed.add_field(name="Party Rank", value=pRank, inline=True)
+        embed.add_field(name="Server Rank:", value=member.top_role, inline=True)
+        if not party_rank == None:
+            embed.add_field(name="Party Rank:", value=party_rank , inline=True)
         if not about == None:
-            embed.add_field(name=f"About {nickname}", value=about, inline=False)
-        else:
-            embed.add_field(name=f"About {nickname}", value="Tell us a bit about yourself with /aboutme!", inline=False)
+            embed.add_field(name=f"About:", value=about, inline=False)
         if not effects == "":
-            embed.add_field(name="Effects", value=effects, inline=False)
-        embed.add_field(name="Next Reward", value=Reward, inline=False)
-        await interaction.response.send_message(embed=embed)
+            embed.add_field(name="Effects:", value=effects, inline=False)
+        if not Reward == None:
+            embed.add_field(name="Next Reward:", value=Reward, inline=False)
+        embed.add_field(name="Info:", value=f"Joined: <t:{int(member.joined_at.timestamp())}:t>\nCreated: <t:{int(member.created_at.timestamp())}:t>\nID: {member.id}", inline=False)
+        await interaction.response.send_message(embed=embed, ephemeral=True); await command_logs.send(embed=embed)
     
     @app_commands.command(description="Edit your profile's about me")
-    async def aboutme(self, interaction: discord.Interaction, *, arg: str or None):
-        if len(arg) <= 256:
-            if len(arg.split('\n')) < 11:
-                member = interaction.user
+    async def aboutme(self, interaction: discord.Interaction, *, member: str or None):
+        command_logs = self.bot.get_channel(976519708096467025)
+        member = interaction.user
+        if len(member) <= 256:
+            if len(member.split('\n')) < 11:
                 with sqlite3.connect('DB Storage/essence.db') as db:
                     cursor = db.cursor()
                 sql = "UPDATE users SET about = ? WHERE user_id = ?"
-                val = (arg, member.id)
+                val = (member, member.id)
                 cursor.execute(sql, val)
                 db.commit()
                 embed = discord.Embed(description=f"Your about me description has been updated.", colour=0x800080)
                 embed.set_author(name=(f"{member.nick}'s Command"), icon_url=member.display_avatar)
-                await interaction.response.send_message(embed=embed)
             else:
                 embed = discord.Embed(description=f"Try not to have more than 10 lines of info!", colour=0x800080)
                 embed.set_author(name=(f"{member.nick}'s Command"), icon_url=member.display_avatar)
-                await interaction.response.send_message(embed=embed)
         else:
             embed = discord.Embed(description=f"Your about me is too long, try shortening it to 256 characters.", colour=0x800080)
             embed.set_author(name=(f"{member.nick}'s Command"), icon_url=member.display_avatar)
-            await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embed, ephemeral=True); await command_logs.send(embed=embed)
 
 async def setup(bot: commands.Bot):
     print("User Cog Ready")
