@@ -3,6 +3,7 @@
 
 ----------- Working On ----------------------------------------------------
 
+save all images in a channel and add a command to see a random one
 
 Every monday a new event is rolled, after 24 hours it checks if everyone wants to reroll (Reroll requirement is half the total participants of last event) 
 and if they do, it rerolls it (reroll can only be done once), on saturday it checks if enough people are ready to participate, if so it will ping all participants 
@@ -16,7 +17,6 @@ save member list before and after bot goes offline, then compare it and run on_m
 Duels for party points
 Game missions and bounties
 Trading
-Ping when daily is ready
 
 ----------- Red (Not Important) ----------------------------------------------------
 
@@ -25,11 +25,9 @@ Custom response messages
 Weekly/Monthly leaderboard
 Shop for essence points
 Rock, paper, scissors
-Message badges
 
 ----------- Blue (Unnecessary) ----------------------------------------------------
 
 Ghost ping detector
-save all images in a channel and add a command to see a random one
 a log for whenever you use or gain points* (Going to need to create an audit function)
 VC inactivity kick after 5 minutes of not talking

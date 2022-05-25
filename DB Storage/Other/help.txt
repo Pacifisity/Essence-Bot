@@ -17,17 +17,18 @@
 
 **Incremental Related Commands:** --------------------------------------------
 *Incremental can be accessed in dms with <@920471516817260564>*
-*$register (name)* - Create a character with whatever name is referenced
-*$patch (number)* - Pull up patch notes for whichever week is referenced, most recent if nothing is referenced
-*$character* - Post an embed with all of the character's information
-*$stats* - Post an embed with all of the character's stats
-*$rankings* - Post an embed with the rank of your character and the top 10 characters
-*$advance* - If you have enough xp, use this command to level up
-*$world* - If you gain enlightenment, you can go to a different world after unlocking it
-*$recover* - Every hour you can refill your hp to 100%
-*$explore* - Allows you to send your character on a quick travel through the world of Essence
+*/incremental register (name)* - Create a character with whatever name is referenced
+*/incremental patch (number)* - Pull up patch notes for whichever week is referenced, most recent if nothing is referenced
+*/incremental character* - Post an embed with all of the character's information
+*/incremental stats* - Post an embed with all of the character's stats
+*/incremental rankings* - Post an embed with the rank of your character and the top 10 characters
+*/incremental advance* - If you have enough xp, use this command to level up
+*/incremental world* - If you gain enlightenment, you can go to a different world after unlocking it
+*/incremental recover* - Every hour you can refill your hp to 100%
+*/incremental explore* - Allows you to send your character on a quick travel through the world of Essence
 
 **Other Commands:** ----------------------------------------------------------
+*/hide (option)* - hide your "about" or "info" from your profile
 */notifications* - Toggles notifications for timers
 */artist* - Gives the author the artist role
 */supporter* - Gives the author the supporter role

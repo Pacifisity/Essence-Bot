@@ -10,15 +10,15 @@ class Item(commands.Cog, app_commands.Group):
         self.bot = bot
         super().__init__()
 
-    @app_commands.command(description="Use an item")
-    async def use(self, interaction: discord.Interaction):
+    @app_commands.command(description="Allows you to use an item.")
+    async def use(self, interaction: discord.Interaction, item: str):
         command_logs = self.bot.get_channel(976519708096467025)
         member = interaction.user
         embed = discord.Embed(description=f"This command is a work in progress")
         embed.set_author(name=(f"{member.nick}'s Command"), icon_url=member.display_avatar)
         await interaction.response.send_message(embed=embed, ephemeral=True); await command_logs.send(embed=embed)
 
-    @app_commands.command(description="Purchase items")
+    @app_commands.command(description="Allows you to purchase items.")
     async def shop(self, interaction: discord.Interaction):
         command_logs = self.bot.get_channel(976519708096467025)
         member = interaction.user
@@ -40,13 +40,13 @@ class Item(commands.Cog, app_commands.Group):
             embed = discord.Embed(description=f"**Purchase**", color=0x800080)
             with sqlite3.connect('DB Storage/essence.db') as db:
                 cursor = db.cursor()
-                cursor.execute(f"SELECT party_points FROM users WHERE user_id = ?", (member.id,))
+                cursor.execute(f"SELECT party_points FROM users WHERE member_id = ?", (member.id,))
                 party_points = cursor.fetchone(); party_points = party_points[0]
-                cursor.execute(f"SELECT brain_bean FROM users WHERE user_id = ?", (member.id,))
+                cursor.execute(f"SELECT brain_bean FROM users WHERE member_id = ?", (member.id,))
                 brain_bean = cursor.fetchone(); brain_bean = brain_bean[0]
                 if brain_bean == None:
                     brain_bean = 0
-                cursor.execute(f"SELECT impurity_orb FROM users WHERE user_id = ?", (member.id,))
+                cursor.execute(f"SELECT impurity_orb FROM users WHERE member_id = ?", (member.id,))
                 impurity_orb = cursor.fetchone(); impurity_orb = impurity_orb[0]
                 if impurity_orb == None:
                     impurity_orb = 0
@@ -55,7 +55,7 @@ class Item(commands.Cog, app_commands.Group):
                 if party_points >= 10:
                     party_points = party_points - 10
                     brain_bean = brain_bean + 1
-                    sql = "UPDATE users SET party_points = ?, brain_bean = ? WHERE user_id = ?"
+                    sql = "UPDATE users SET party_points = ?, brain_bean = ? WHERE member_id = ?"
                     val = (party_points, brain_bean, member.id)
                     cursor.execute(sql, val)
                     db.commit()
@@ -67,7 +67,7 @@ class Item(commands.Cog, app_commands.Group):
                 if party_points >= 5:
                     party_points = party_points - 5
                     impurity_orb = impurity_orb + 1
-                    sql = "UPDATE users SET party_points = ?, impurity_orb = ? WHERE user_id = ?"
+                    sql = "UPDATE users SET party_points = ?, impurity_orb = ? WHERE member_id = ?"
                     val = (party_points, impurity_orb, member.id)
                     cursor.execute(sql, val)
                     db.commit()
@@ -83,14 +83,14 @@ class Item(commands.Cog, app_commands.Group):
         view.add_item(select)
         await interaction.response.send_message(embed=embed, view=view, ephemeral=True); await command_logs.send(embed=embed, view=view)
     
-    @app_commands.command(description="Open your inventory")
+    @app_commands.command(description="Shows a list of all of your items.")
     async def inventory(self, interaction: discord.Interaction):
         command_logs = self.bot.get_channel(976519708096467025)
         member = interaction.user
         embed = discord.Embed(description=f"**Inventory**", colour=0x800080)
         with sqlite3.connect('DB Storage/essence.db') as db:
             cursor = db.cursor()
-            cursor.execute(f"SELECT brain_bean, crystal_of_power, joker_card, easter_egg, impurity_orb FROM users WHERE user_id = ?", (member.id,))
+            cursor.execute(f"SELECT brain_bean, crystal_of_power, joker_card, easter_egg, impurity_orb FROM users WHERE member_id = ?", (member.id,))
             inventory = cursor.fetchone()
             items = ["Brain Bean", "Crystal of Power", "Joker Card", "Easter Egg", "Impurity Orb"]
             for i in enumerate(inventory):

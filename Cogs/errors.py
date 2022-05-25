@@ -22,7 +22,7 @@ class Errors(commands.Cog):
                     await channel.send(f"{ctx.author.mention} error message below", delete_after=5)
                 await channel.send(embed=embed, delete_after=5); await command_logs.send(embed=embed)
 
-        elif isinstance(error, commands.MissingRequiredArgument):
+        if isinstance(error, commands.MissingRequiredArgument):
             if not ctx.guild:
                 await ctx.send(f"Your command is missing some required information")
             else:
@@ -34,7 +34,7 @@ class Errors(commands.Cog):
                     await channel.send(f"{ctx.author.mention} error message below", delete_after=5)
                 await channel.send(embed=embed, delete_after=5); await command_logs.send(embed=embed)
 
-        elif isinstance(error, commands.MissingPermissions):
+        if isinstance(error, commands.MissingPermissions):
             if not ctx.guild:
                 await ctx.send(f"You don't have permission to use this command")
             else:
@@ -46,7 +46,7 @@ class Errors(commands.Cog):
                     await channel.send(f"{ctx.author.mention} error message below", delete_after=5)
                 await channel.send(embed=embed, delete_after=5); await command_logs.send(embed=embed)
 
-        elif isinstance(error, commands.MemberNotFound):
+        if isinstance(error, commands.MemberNotFound):
             if not ctx.guild:
                 await ctx.send(f"User not found")
             else:
@@ -58,7 +58,7 @@ class Errors(commands.Cog):
                     await channel.send(f"{ctx.author.mention} error message below", delete_after=5)
                 await channel.send(embed=embed, delete_after=5); await command_logs.send(embed=embed)
 
-        elif isinstance(error, commands.CheckFailure):
+        if isinstance(error, commands.CheckFailure):
             if not ctx.guild:
                 await ctx.send(f"That command doesn't work in DMS")
             else:
@@ -70,7 +70,7 @@ class Errors(commands.Cog):
                     await channel.send(f"{ctx.author.mention} error message below", delete_after=5)
                 await channel.send(embed=embed, delete_after=5); await command_logs.send(embed=embed)
 
-        elif isinstance(error, commands.CommandOnCooldown):
+        if isinstance(error, commands.CommandOnCooldown):
             if not ctx.guild:
                 await ctx.send(f"Slow down, you can use that command again in {round(error.retry_after)} seconds")
             else:
