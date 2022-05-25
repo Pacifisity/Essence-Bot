@@ -1,0 +1,16 @@
+gpu: nvidia, AMD | takes watts
+cpu: AMD, intel - i7 7700k or i7 8700k | based on motherboard | takes watts | k = overclockable
+psu: power supply unit | generates watts
+motherboard:
+ram: freuqency (mhz), cl | based on the motherboard
+storage: EXPENSIVE ssd FASTER, CHEAP hardrive - Work with both at once
+case: atx, micro-atx, mini-ITX
+cpu cooler: water cooled, air cooled (all in one, cheapter)
+monitor: 144hz, 240hz
+
+thermal paste: between the cooler and the cpu to keep temperature stable
+bottelneck: when your cpu or gpu outperforms the other causing it to be stuck
+bios: a motherboard's manufacturer's startup configuration
+overclock: faster cpu speed but higher temperatures
+
+pcpartpicker.com
