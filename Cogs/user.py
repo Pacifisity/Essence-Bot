@@ -4,6 +4,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+
 class User(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -14,30 +15,50 @@ class User(commands.Cog):
         member_id = member.id
         timestamp = round(datetime.now().timestamp())
         command_logs = self.bot.get_channel(976519708096467025)
-        spirit = discord.utils.get(interaction.guild.roles, id=926660576980111370)
-        mana = discord.utils.get(interaction.guild.roles, id=926660721054462083)
-        aura = discord.utils.get(interaction.guild.roles, id=926660747713474600)
-        nature = discord.utils.get(interaction.guild.roles, id=928466489588191322)
-        impurity = discord.utils.get(interaction.guild.roles, id=934956487107813426)
+        spirit = discord.utils.get(
+            interaction.guild.roles, id=926660576980111370)
+        mana = discord.utils.get(
+            interaction.guild.roles, id=926660721054462083)
+        aura = discord.utils.get(
+            interaction.guild.roles, id=926660747713474600)
+        nature = discord.utils.get(
+            interaction.guild.roles, id=928466489588191322)
+        impurity = discord.utils.get(
+            interaction.guild.roles, id=934956487107813426)
         party_roles = [spirit, mana, aura, nature]
 
-        with sqlite3.connect('DB Storage/essence.db') as db: # Updates user's role when they use $profile
+        # Updates user's role when they use $profile
+        with sqlite3.connect('Python/essence-bot/sensitive-data/essence.db') as db:
             cursor = db.cursor()
-            cursor.execute(f"SELECT activity_points FROM users WHERE member_id = ?", (member_id,))
-            activity_points = cursor.fetchone(); activity_points = activity_points[0]
-            cursor.execute(f"SELECT party_points FROM users WHERE member_id = ?", (member_id,))
-            party_points = cursor.fetchone(); party_points = party_points[0]
-            cursor.execute(f"SELECT party_rank FROM users WHERE member_id = ?", (member_id,))
-            party_rank = cursor.fetchone(); party_rank = party_rank[0]
-            cursor.execute(f"SELECT about FROM users WHERE member_id = ?", (member_id,))
-            about = cursor.fetchone(); about = about[0]
-            cursor.execute(f"SELECT apmulti FROM users WHERE member_id = ?", (member_id,))
-            apmulti = cursor.fetchone(); apmulti = apmulti[0]
-            cursor.execute(f'SELECT hide_info FROM users WHERE member_id = ?', (member.id,))
-            hide_info = cursor.fetchone(); hide_info = hide_info[0]
-            cursor.execute(f'SELECT hide_about FROM users WHERE member_id = ?', (member.id,))
-            hide_about = cursor.fetchone(); hide_about = hide_about[0]
-        
+            cursor.execute(
+                f"SELECT activity_points FROM users WHERE member_id = ?", (member_id,))
+            activity_points = cursor.fetchone()
+            activity_points = activity_points[0]
+            cursor.execute(
+                f"SELECT party_points FROM users WHERE member_id = ?", (member_id,))
+            party_points = cursor.fetchone()
+            party_points = party_points[0]
+            cursor.execute(
+                f"SELECT party_rank FROM users WHERE member_id = ?", (member_id,))
+            party_rank = cursor.fetchone()
+            party_rank = party_rank[0]
+            cursor.execute(
+                f"SELECT about FROM users WHERE member_id = ?", (member_id,))
+            about = cursor.fetchone()
+            about = about[0]
+            cursor.execute(
+                f"SELECT apmulti FROM users WHERE member_id = ?", (member_id,))
+            apmulti = cursor.fetchone()
+            apmulti = apmulti[0]
+            cursor.execute(
+                f'SELECT hide_info FROM users WHERE member_id = ?', (member.id,))
+            hide_info = cursor.fetchone()
+            hide_info = hide_info[0]
+            cursor.execute(
+                f'SELECT hide_about FROM users WHERE member_id = ?', (member.id,))
+            hide_about = cursor.fetchone()
+            hide_about = hide_about[0]
+
         no_party = 0
         for party in party_roles:
             if party in member.roles:
@@ -70,49 +91,64 @@ class User(commands.Cog):
         else:
             impurityeffect = ""
         effects = apmultieffect + impurityeffect
-            
-        embed = discord.Embed(description=desc, colour=0x800080, timestamp=datetime.utcnow())
-        embed.set_author(name=(f"{nickname}'s Profile"), icon_url=member.display_avatar)
-        embed.add_field(name="Server Rank:", value=member.top_role, inline=True)
+
+        embed = discord.Embed(
+            description=desc, colour=0x800080, timestamp=datetime.utcnow())
+        embed.set_author(name=(f"{nickname}'s Profile"),
+                         icon_url=member.display_avatar)
+        embed.add_field(name="Server Rank:",
+                        value=member.top_role, inline=True)
         if not no_party:
-            embed.add_field(name="Party Rank:", value=party_rank , inline=True)
+            embed.add_field(name="Party Rank:", value=party_rank, inline=True)
         if not about == None and not hide_about == 1:
             embed.add_field(name=f"About:", value=about, inline=False)
         if not effects == "":
             embed.add_field(name="Effects:", value=effects, inline=False)
         if not hide_info == 1:
-            embed.add_field(name="Info:", value=f"Joined: <t:{int(member.joined_at.timestamp())}:F>\nCreated: <t:{int(member.created_at.timestamp())}:F>\nID: {member.id}", inline=False)
-        await interaction.response.send_message(embed=embed, ephemeral=True); await command_logs.send(embed=embed)
-    
+            embed.add_field(
+                name="Info:", value=f"Joined: <t:{int(member.joined_at.timestamp())}:F>\nCreated: <t:{int(member.created_at.timestamp())}:F>\nID: {member.id}", inline=False)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        await command_logs.send(embed=embed)
+
     @app_commands.command(description="Edit your profile's about me")
     async def aboutme(self, interaction: discord.Interaction, information: str = None):
         command_logs = self.bot.get_channel(976519708096467025)
         member = interaction.user
         if information == None:
-            with sqlite3.connect('DB Storage/essence.db') as db:
+            with sqlite3.connect('Python/essence-bot/sensitive-data/essence.db') as db:
                 cursor = db.cursor()
-                cursor.execute(f"SELECT about FROM users WHERE member_id = ?", (member.id,))
-                about = cursor.fetchone(); about = about[0]
+                cursor.execute(
+                    f"SELECT about FROM users WHERE member_id = ?", (member.id,))
+                about = cursor.fetchone()
+                about = about[0]
                 if about == None:
-                    embed = discord.Embed(description=f"You don't have an about me yet, try making one!", colour=0x800080)
+                    embed = discord.Embed(
+                        description=f"You don't have an about me yet, try making one!", colour=0x800080)
                 else:
-                    embed = discord.Embed(description=f"**Your about me description:**\n{about}", colour=0x800080)
+                    embed = discord.Embed(
+                        description=f"**Your about me description:**\n{about}", colour=0x800080)
         else:
             if len(information) <= 256:
                 if len(information.split('\n')) <= 10:
-                    with sqlite3.connect('DB Storage/essence.db') as db:
+                    with sqlite3.connect('Python/essence-bot/sensitive-data/essence.db') as db:
                         cursor = db.cursor()
                     sql = "UPDATE users SET about = ? WHERE member_id = ?"
                     val = (information, member.id)
                     cursor.execute(sql, val)
                     db.commit()
-                    embed = discord.Embed(description=f"Your about me description has been updated.", colour=0x800080)
+                    embed = discord.Embed(
+                        description=f"Your about me description has been updated.", colour=0x800080)
                 else:
-                    embed = discord.Embed(description=f"Try not to have more than 10 lines of info!", colour=0x800080)
+                    embed = discord.Embed(
+                        description=f"Try not to have more than 10 lines of info!", colour=0x800080)
             else:
-                embed = discord.Embed(description=f"Your about me is too long, try shortening it to 256 characters.", colour=0x800080)
-        embed.set_author(name=(f"{member.nick}'s Command"), icon_url=member.display_avatar)
-        await interaction.response.send_message(embed=embed, ephemeral=True); await command_logs.send(embed=embed)
+                embed = discord.Embed(
+                    description=f"Your about me is too long, try shortening it to 256 characters.", colour=0x800080)
+        embed.set_author(name=(f"{member.nick}'s Command"),
+                         icon_url=member.display_avatar)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        await command_logs.send(embed=embed)
+
 
 async def setup(bot: commands.Bot):
     print("User Cog Ready")

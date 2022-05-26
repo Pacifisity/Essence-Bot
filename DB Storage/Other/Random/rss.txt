@@ -1,5 +1,0 @@
-Learn basics, algorithms and data structures.
-Do challenges in leetcode/hackerrank/codewars
-
-Algorithms and Data Structures
-https://www.youtube.com/watch?v=pkYVOmU3MgA

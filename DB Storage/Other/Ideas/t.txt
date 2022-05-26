@@ -1,7 +1,0 @@
-website in javascript and html
-
-run the website with an app
-
-flask
-
-back end in python

@@ -1,0 +1,104 @@
+
+    @commands.command()
+    async def cog_check(self, ctx):
+        channel = self.bot.get_channel(735131468145360917)
+        channel2 = self.bot.get_channel(920479737405644830)
+        return ctx.channel == channel or ctx.channel == channel2
+    
+    @commands.command()
+    async def use(self, ctx: commands.Context, *, arg: str):
+        if arg == "brain pill":
+            member_id = ctx.author
+            timestamp = round(datetime.now().timestamp())
+            with sqlite3.connect('DB Storage/essence.db') as db:
+                cursor = db.cursor()
+            cursor.execute(f"SELECT brain_pills FROM users WHERE user_id = ?", (member_id,))
+            brain_pills = cursor.fetchone()
+            brain_pills = brain_pills[0]
+            cursor.execute(f"SELECT apmulti FROM users WHERE user_id = ?", (member_id,))
+            apmulti = cursor.fetchone()
+            apmulti = apmulti[0]
+            if brain_pills == None or brain_pills == 0:
+                await ctx.send("You don't have any brain pills")
+            else:
+                if apmulti is None or apmulti + 86400 >= timestamp:
+                    sql = "UPDATE users SET apmulti = ? brain_pills = ? WHERE user_id = ?"
+                    val = (timestamp, brain_pills - 1, member_id)
+                    cursor.execute(sql, val)
+                    db.commit()
+                else:
+                    await ctx.send("You've already used a brain pill in the last 24h, check your effects with $profile.")
+        if arg == "power crystal":
+            await ctx.send("The world isn't ready yet")
+        else:
+            await ctx.send("What do you want to use?")
+
+            ----
+
+"""@commands.command(aliases=['buy', 'purchase'])
+    async def shop(self, ctx: commands.Context, arg: str = None, kwarg: discord.Member = None):
+        member = ctx.author
+        member_id = member.id
+        timestamp = round(datetime.now().timestamp())
+        with sqlite3.connect('DB Storage/essence.db') as db:
+            cursor = db.cursor()
+            cursor.execute(f"SELECT party_points FROM users WHERE user_id = ?", (member_id,))
+            pp = cursor.fetchone()
+            pp = pp[0]
+        if arg == None:
+            embed = discord.Embed(title="Party Shop", description="Here you can purchase things with your party points.", colour = 0x800080)
+            embed.add_field(name="Double AP ($buy apmulti)", value="Price: 5P₽\nBuying this gives you double activity points for 24 hours")
+            embed.add_field(name="Impurity ($buy impurity [@target])", value="Price: 5P₽\nPurchasing this gives a user of your choice the impurity role until they cleanse themselves with $p daily")
+            embed.add_field(name="WIP Role ($buy role [Role name])", value="Price: 100P₽\nBuying this will give you your own custom role you can edit with $role color [color hex] or $role name [Role name]")
+            embed.add_field(name="WIP Immunity ($buy immunity)", value="Price: 100P₽\nPurchasing this gives you permanent immunity against impurity and future humiliations")
+            await ctx.send(embed=embed)
+        if arg == "apmulti":
+            if pp >= 5:
+                pp = pp - 5
+                cursor.execute(f"SELECT apmulti FROM users WHERE user_id = ?", (member_id,))
+                apmultiTup = cursor.fetchone()
+                apmulti = apmultiTup[0]
+                if apmulti is None or apmulti + 86400 >= timestamp:
+                    sql = "UPDATE users SET apmulti = ?, party_points = ? WHERE user_id = ?"
+                    val = (timestamp, pp, member_id)
+                    cursor.execute(sql, val)
+                    db.commit()
+                    embed = discord.Embed(description=f"You have a 2x ap multiplier for the next 24 hours", colour=0x800080)
+                    await ctx.send(embed=embed)
+                else:
+                    embed = discord.Embed(description=f"You already have a 2x multiplier.", colour=0x800080)
+                    await ctx.send(embed=embed)
+            else:
+                embed = discord.Embed(description=f"You don't have enough party points for this.", colour=0x800080)
+                await ctx.send(embed=embed)
+        if arg == "impurity":
+            impurity = discord.utils.get(ctx.guild.roles, id=(934956487107813426))
+            if kwarg == None:
+                embed = discord.Embed(description=f"Are you trying to give yourself impurities? Mention the user you want to dirty.", colour=0x800080)
+                await ctx.send(embed=embed)
+            else:
+                if impurity in kwarg.roles:
+                    embed = discord.Embed(description=f"This user is already impure.", colour=0x800080)
+                    await ctx.send(embed=embed)
+                else:
+                    if pp >= 5:
+                        pp = pp - 5
+                        await kwarg.add_roles(impurity)
+                        sql = "UPDATE users SET party_points = ? WHERE user_id = ?"
+                        val = (pp, member_id)
+                        cursor.execute(sql, val)
+                        db.commit()
+                        embed = discord.Embed(description=f"They have become impure until they cleanse themself with $party daily.", colour=0x800080)
+                        await ctx.send(embed=embed)
+                    else:
+                        embed = discord.Embed(description=f"You don't have enough pp to buy this.", colour=0x800080)
+                        await ctx.send(embed=embed)
+        if arg == "command":
+            embed = discord.Embed(description=f"This item is a work in progress, please wait", colour=0x800080)
+            await ctx.send(embed=embed)
+        if arg == "role":
+            embed = discord.Embed(description=f"This item is a work in progress, please wait", colour=0x800080)
+            await ctx.send(embed=embed)
+        if arg == "immunity":
+            embed = discord.Embed(description=f"This item is a work in progress, please wait", colour=0x800080)
+            await ctx.send(embed=embed)"""
